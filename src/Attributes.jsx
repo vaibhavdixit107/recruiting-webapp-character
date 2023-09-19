@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ATTRIBUTE_LIST, CLASS_LIST, SKILL_LIST } from "./consts";
+import { saveCharacter, getCharacter } from "./CharacterAPI";
 
 function CharacterSheet(){
 
@@ -22,19 +23,25 @@ function CharacterSheet(){
       10 + 4 * calculateAbilityModifier(attributes.Intelligence )
     )
     
-      const handleIncrement = (attribute) => {
-        setAttributes((prevAttributes) => ({
-          ...prevAttributes,
-          [attribute]: prevAttributes[attribute] + 1
-        }));
-      };
+    const handleIncrement = (attribute) => {
+      setAttributes((prevAttributes) => {
+        const updatedAttributes = { ...prevAttributes };
+        const newValue = updatedAttributes[attribute] + 1;
+        // Ensure the new value does not exceed the maximum of 70
+        updatedAttributes[attribute] = Math.min(newValue, 70);
+        return updatedAttributes;
+      });
+    };
     
-      const handleDecrement = (attribute) => {
-        setAttributes((prevAttributes) => ({
-          ...prevAttributes,
-          [attribute]: prevAttributes[attribute] - 1
-        }));
-      };
+    const handleDecrement = (attribute) => {
+      setAttributes((prevAttributes) => {
+        const updatedAttributes = { ...prevAttributes };
+        const newValue = updatedAttributes[attribute] - 1;
+        // Ensure the new value does not go below the minimum of 1
+        updatedAttributes[attribute] = Math.max(newValue, 1);
+        return updatedAttributes;
+      });
+    };
       const meetsClassRequirements = (className) => {
         const classRequirements = CLASS_LIST[className];
         for (const attribute in classRequirements) {
@@ -95,6 +102,30 @@ function CharacterSheet(){
           return skillObj;
         }, {})
       );
+
+      useEffect(() => {
+        async function loadCharacterData() {
+          try{
+            const characterData = await getCharacter('vaibhavdixit107')
+          }catch(err){
+            console.log(err)
+          }
+        }
+        loadCharacterData()
+      },[])
+
+      const handleSaveCharacter = async () =>{
+        try{
+          const characterDataToSave = {
+            attributes,
+            selectedClass,
+            skills
+          }
+          const savedCharacters = await saveCharacter('vaibhavdixit107', characterDataToSave)
+        }catch(err){
+          console.log('HandleSaveCharacterData:',err)
+        }
+      }
     
       return (
         <div>
