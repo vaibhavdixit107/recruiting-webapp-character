@@ -1,7 +1,12 @@
 import React, { useState } from "react";
-import { ATTRIBUTE_LIST, CLASS_LIST } from "./consts";
+import { ATTRIBUTE_LIST, CLASS_LIST, SKILL_LIST } from "./consts";
 
 function CharacterSheet(){
+
+    const calculateAbilityModifier = (value) => {
+      return Math.floor((value - 10) / 2);
+    };
+
     const [attributes, setAttributes] = useState({
         Strength: 10,
         Dexterity: 10,
@@ -12,6 +17,10 @@ function CharacterSheet(){
     })
 
     const [selectedClass, setSelectedClass] = useState(null);
+
+    const [skillPoints, setSkillPoints] = useState(
+      10 + 4 * calculateAbilityModifier(attributes.Intelligence )
+    )
     
       const handleIncrement = (attribute) => {
         setAttributes((prevAttributes) => ({
@@ -36,9 +45,56 @@ function CharacterSheet(){
         return true;
       };
 
-      const calculateAbilityModifier = (value) => {
-        return Math.floor((value - 10) / 2);
+      const handleSkillIncrement = (skillName) => {
+        if (skillPoints > 0) {
+          setSkills((prevSkills) => {
+            const newSkills = { ...prevSkills };
+            if (newSkills[skillName].points < skillPoints) {
+              newSkills[skillName].points += 1;
+              newSkills[skillName].total = calculateSkillTotal(
+                skillName,
+                newSkills[skillName].points
+              );
+              setSkillPoints(skillPoints - 1);
+            }
+            return newSkills;
+          });
+        }
       };
+    
+      const handleSkillDecrement = (skillName) => {
+        if (skills[skillName].points > 0) {
+          setSkills((prevSkills) => {
+            const newSkills = { ...prevSkills };
+            newSkills[skillName].points -= 1;
+            newSkills[skillName].total = calculateSkillTotal(
+              skillName,
+              newSkills[skillName].points
+            );
+            setSkillPoints(skillPoints + 1);
+            return newSkills;
+          });
+        }
+      };
+    
+      const calculateSkillTotal = (skillName, points) => {
+        const skill = SKILL_LIST.find((s) => s.name === skillName);
+        const abilityModifier = calculateAbilityModifier(
+          attributes[skill.attributeModifier]
+        );
+        return points + abilityModifier;
+      };
+    
+      const [skills, setSkills] = useState(
+        SKILL_LIST.reduce((skillObj, skill) => {
+          skillObj[skill.name] = {
+            points: 0,
+            modifier: skill.attributeModifier,
+            total: calculateSkillTotal(skill.name, 0)
+          };
+          return skillObj;
+        }, {})
+      );
     
       return (
         <div>
@@ -82,6 +138,21 @@ function CharacterSheet(){
               </ul>
             </div>
           )}
+           <h1>Skills</h1>
+      <div>
+      {SKILL_LIST.map((skill) => (
+          <div key={skill.name}>
+            <p>
+              {skill.name} - points: {skills[skill.name].points}{' '}
+              <button onClick={() => handleSkillIncrement(skill.name)}>+</button>
+              <button onClick={() => handleSkillDecrement(skill.name)}>-</button>
+              modifier ({skill.attributeModifier}):{' '}
+              {calculateAbilityModifier(attributes[skill.attributeModifier])} total:{' '}
+              {skills[skill.name].total}
+            </p>
+          </div>
+        ))}
+      </div>
         </div>
       ); 
 }
