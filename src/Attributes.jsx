@@ -36,6 +36,9 @@ function CharacterSheet(){
         return true;
       };
 
+      const calculateAbilityModifier = (value) => {
+        return Math.floor((value - 10) / 2);
+      };
     
       return (
         <div>
@@ -45,6 +48,7 @@ function CharacterSheet(){
               <div key={attribute}>
                 <h2>{attribute}</h2>
                 <p>Value: {attributes[attribute]}</p>
+                <p>Modifier: {calculateAbilityModifier(attributes[attribute])}</p>
                 <button onClick={() => handleIncrement(attribute)}>Increment</button>
                 <button onClick={() => handleDecrement(attribute)}>Decrement</button>
               </div>
