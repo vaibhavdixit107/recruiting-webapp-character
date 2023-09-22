@@ -10,6 +10,7 @@ function calculateAbilityModifier(value) {
 const githubUsername = "vaibhavdixit107"; 
 const apiUrl = `https://recruiting.verylongdomaintotestwith.ca/api/${githubUsername}/character`;
 
+const ATTRIBUTE_LIMIT = 70
 function CharacterSheet() {
   const defaultAttributes = {};
     ATTRIBUTE_LIST.forEach((attribute) => {
